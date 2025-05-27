@@ -188,7 +188,7 @@ Note: The haplotype database for class II is slightly tricky as we are looking a
 ```
 perl scripts/haplotypingMHCII.pl \
 --haplotypes=fasta/Bovine.mhcii.haplotypes.txt \
---prefix=test \
+--prefix=HAPLOTYPING_MHCII \
 --samplesheet=samplesheet.txt
 ```
 
