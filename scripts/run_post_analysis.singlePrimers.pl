@@ -3,17 +3,36 @@ use Cwd;
 
 my $samplesheet = "samples.txt";
 my $prefix = "run";
-my $pcr = "DRB3";
+my $primer = "DRB3";
 my $cutoff = 2;
 
 GetOptions(
-    'samplesheet=s'    => \$samplesheet,
-    'prefix=s' => \$prefix,
-    'pcr=s' => \$pcr,
-    'cutoff=s'	=> \$cutoff,
+    'samplesheet=s' => \$samplesheet,
+    'prefix=s'      => \$prefix,
+    'primer=s'      => \$primer,
+    'cutoff=s'      => \$cutoff,
+    'fc=i'          => \$fc,
 ) or print "Invalid options\n";
 
-print "$samplesheet\n";
-system ("perl scripts/makeSummarySinglePrimers.pl --samplesheet=$samplesheet --prefix=$prefix --pcr=$pcr --cutoff=$cutoff");
-system ("cat summary/*.$pcr.selected.tsv > $pcr.selected.tsv");
-system ("cat summary/*.$pcr.discarded.tsv > $pcr.discarded.tsv");
+print "=> Sample Sheet: $samplesheet\n";
+
+print "==> Running scripts/makeSummarySinglePrimers.pl\n";
+print "===> CMD: perl scripts/makeSummarySinglePrimers.pl 
+    --samplesheet=$samplesheet \\
+    --prefix=$prefix \\
+    --primer=$primer \\
+    --cutoff=$cutoff \\
+    --fc=$fc\n\n";
+system ("
+    perl scripts/makeSummarySinglePrimers.pl \\
+        --samplesheet=$samplesheet \\
+        --prefix=$prefix \\
+        --primer=$primer \\
+        --cutoff=$cutoff \\
+        --fc=$fc");
+
+print "==> cat .selected.tsv files\n";
+system ("cat summary/*.$primer.selected.tsv > $prefix.$primer.selected.tsv");
+
+print "==> cat .discarded.tsv files\n";
+system ("cat summary/*.$primer.discarded.tsv > $prefix.$primer.discarded.tsv");
