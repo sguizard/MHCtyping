@@ -115,8 +115,8 @@ Once the above steps are done, follow commands below:
 ```
 perl scripts/run_post_analysis.twoPrimers.pl \
   --samplesheet=samplesheet.txt \
-  --database=fasta/BoLA.MHCI.fasta \
-  --prefix=test 
+  --database=fasta/MHCI.fasta \
+  --prefix=sumTwoP 
 ```
 	
    * MHCII:
@@ -126,22 +126,26 @@ perl scripts/run_post_analysis.twoPrimers.pl \
 ```
 perl scripts/run_post_analysis.singlePrimers.pl \
   --samplesheet=samplesheet.txt \
-  --prefix=test \
-  --primers=DRB3 \
+  --prefix=sumSingleP \
+  --primer=DRB3 \
   --cutoff=5 \
   --fc=3
+```
 
+```
 perl scripts/run_post_analysis.singlePrimers.pl \
   --samplesheet=samplesheet.txt \
-  --prefix=test \
-  --primers=DQA \
+  --prefix=sumSingleP \
+  --primer=DQA \
   --cutoff=7 \
   --fc=3
+```
 
+```
 perl scripts/run_post_analysis.singlePrimers.pl \
   --samplesheet=samplesheet.txt \
-  --prefix=test \
-  --primers=DQB \
+  --prefix=sumSingleP \
+  --primer=DQB \
   --cutoff=3 \
   --fc=3
 ```
@@ -163,12 +167,12 @@ The following command can be used for MHC class I haplotyping
 
 ```
 perl scripts/haplotypingMHCI.pl \
-  --haplotypes=fasta/Bovine.mhci.haplotypes.txt \
-  --filtered=*.mhcI.selected.tsv \
-  --discarded=*.mhcI.discarded.tsv \
-  --summary=*.summary.mhci.matrix.txt \
+  --haplotypes=fasta/mhci.haplotypes.txt \
+  --filtered=sumTwoP.mhcI.selected.tsv \
+  --discarded=sumTwoP.mhcI.discarded.tsv \
+  --summary=sumTwoP.summary.MHCI.tsv \
   --database=fasta/MHCI.fasta \
-  --prefix=test
+  --prefix=HAPLOTYPING_MHCI
 ```
 
 The haplotyping will create the following tables: 
