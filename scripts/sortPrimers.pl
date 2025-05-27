@@ -3,16 +3,16 @@ no warnings ('uninitialized', 'substr');
 use Cwd;
 use Getopt::Long;
 
-my $sample = "sample";
+my $sample   = "sample";
 my $work_dir = "results";
-my $prefix = "sample";
-my $primers = "primer";
+my $prefix   = "sample";
+my $primers  = "primer";
 
 GetOptions(
-    'sample=s'    => \$sample,
-    'work_dir=s'     => \$work_dir,
-    'primers=s' => \$prefix,
-    'primer_seq=s'     => \$primers
+    'sample=s'     => \$sample,
+    'work_dir=s'   => \$work_dir,
+    'primers=s'    => \$prefix,
+    'primer_seq=s' => \$primers
 ) or print "Invalid options\n";
 
 my $localtime = localtime;
@@ -20,12 +20,12 @@ print "Primer sorting: starting at $localtime\n\n";
 print "$sample is searched for $prefix primers using $primers sequences\n\n";
 
 #read and initiate primer sequences - forward and reverse complements
-my %forward_primer = ();
-my %reverse_primer = ();
+my %forward_primer         = ();
+my %reverse_primer         = ();
 my %forward_primer_revcomp = ();
 my %reverse_primer_revcomp = ();
-my $count_for = 0;
-my $count_rev = 0;
+my $count_for              = 0;
+my $count_rev              = 0;
 
 my %iupac_codes = (
     'R' => ['A', 'G'],
@@ -85,18 +85,18 @@ while(<IN>){
 			foreach my $sequence (@possible_sequences) {
 				$seq_revcomp = "";
 				$count_for++;
-				$forward_primer{$count_for} = $sequence;
-				$seq_revcomp = reverse $sequence;
-				$seq_revcomp =~ tr/ATGCatgc/TACGtacg/;
+				$forward_primer{$count_for}         = $sequence;
+				$seq_revcomp                        = reverse $sequence;
+				$seq_revcomp                        =~ tr/ATGCatgc/TACGtacg/;
 				$forward_primer_revcomp{$count_for} = $seq_revcomp;
 			}
 		} 
 		elsif ($id =~ /rev/i){
 			foreach my $sequence (@possible_sequences) {
 				$count_rev++;
-				$reverse_primer{$count_rev} = $sequence;
-				$seq_revcomp = reverse $sequence;
-				$seq_revcomp =~ tr/ATGCatgc/TACGtacg/;
+				$reverse_primer{$count_rev}         = $sequence;
+				$seq_revcomp                        = reverse $sequence;
+				$seq_revcomp                        =~ tr/ATGCatgc/TACGtacg/;
 				$reverse_primer_revcomp{$count_rev} = $seq_revcomp;
 			}
 		}
@@ -112,19 +112,20 @@ print "** Reverse primers: Forward and reverse complement sequences **\n";
 foreach my $p (sort {$a <=> $b} keys %reverse_primer){
 	print "$p $reverse_primer{$p} $reverse_primer_revcomp{$p}\n";
 }
-my %unique_sequences = ();
-my %primer_group = ();
-my $total_primer_reads_flash = 0;
+
+my %unique_sequences          = ();
+my %primer_group              = ();
+my $total_primer_reads_flash  = 0;
 my $total_primer_reads_single = 0;
-my $total_unique_seq = 0;
-my $id = "";
-my $sequence = "";
-my $trimmed_seq = "";
-my $flag = 0;
+my $total_unique_seq          = 0;
+my $id                        = "";
+my $sequence                  = "";
+my $trimmed_seq               = "";
+my $flag                      = 0;
 
 sub check_primer{
 	$sequence = $_[0];
-	$flag = 0;
+	$flag     = 0;
 	LOOP1: foreach my $primer1 (keys %forward_primer){
 		if ($sequence =~ /^(\w+|)$forward_primer{$primer1}(\w+|)/) {
 			foreach my $primer2 (keys %reverse_primer_revcomp){
@@ -143,6 +144,7 @@ sub check_primer{
 			}
 		}
 	}
+
 	if ($flag eq 0){
 		LOOP2: foreach my $primer1 (keys %reverse_primer){
 			if ($sequence =~ /^(\w+|)$reverse_primer{$primer1}(\w+|)/) {
@@ -174,7 +176,7 @@ sub check_primer{
 	}
 }
 
-my $flash_reads = "$work_dir/$sample.extendedFrags.fastq";
+my $flash_reads = "$work_dir/02-flash/$sample.extendedFrags.fastq";
 # open (OUT_PRIMERS, ">$work_dir/$sample.$prefix.fasta") or die "Cannot write $work_dir/$sample/$sample.$prefix.fasta\n";
 my %flash_len = ();
 my $total_primer_reads = 0;
@@ -216,14 +218,14 @@ else{
 	print "Cannot read $flash_reads.\n";
 }
 		
-print "Writting lengh histogram...";
-open (OUT_PRIMERS_LEN, ">$work_dir/$sample.$prefix.seq.len_hist.tsv") or die "Cannot write $work_dir/$sample/$sample.$prefix.seq.len_hist.tsv\n";
+print "Writting lengh histogram...\n";
+open (OUT_PRIMERS_LEN, ">$work_dir/03-sort/$sample.$prefix.seq.len_hist.tsv") or die "Cannot write $work_dir/$sample/$sample.$prefix.seq.len_hist.tsv\n";
 foreach my $len (sort{$a <=> $b} keys %flash_len){
 	print OUT_PRIMERS_LEN "$len\t$flash_len{$len}\n";
 }
 
 print "Writting unique variants log $work_dir/$sample.primers.info.tsv...\n";
-open (INFO, ">$work_dir/$sample.$prefix.primers.info.tsv") or die "Cannot write $work_dir/$sample.$prefix.primers.info.tsv\n";
+open (INFO, ">$work_dir/03-sort/$sample.$prefix.primers.info.tsv") or die "Cannot write $work_dir/$sample.$prefix.primers.info.tsv\n";
 print INFO "Sample\tForward primer\tReverse primer\tOrientation\tread counts\n";
 foreach $primer (sort {$primer_group{$b} <=> $primer_group{$a}} keys %primer_group){
 	print INFO "$primer\t$primer_group{$primer}\n";
@@ -231,13 +233,13 @@ foreach $primer (sort {$primer_group{$b} <=> $primer_group{$a}} keys %primer_gro
 close (INFO);
 
 print "Clustering sequences...\n";
-open (OUT_UNIQUE, ">$work_dir/$sample.$prefix.clusters.fasta") or die "Cannot write $work_dir/$sample/$sample.$prefix.clusters.fasta\n";
+open (OUT_UNIQUE, ">$work_dir/03-sort/$sample.$prefix.clusters.fasta") or die "Cannot write $work_dir/$sample/$sample.$prefix.clusters.fasta\n";
 my $count_clusters = 0;
 my $count_singles = 0;
 my $count = 0;
 
 if($total_primer_reads > 0){
-	open (SINGLES, ">$work_dir/$sample.$prefix.singletons.fasta") or die "Cannot write $work_dir/$sample/$sample.$prefix.singletons.fasta\n";
+	open (SINGLES, ">$work_dir/03-sort/$sample.$prefix.singletons.fasta") or die "Cannot write $work_dir/$sample/$sample.$prefix.singletons.fasta\n";
 	
 	foreach $seq (sort {$unique_sequences{$b} <=> $unique_sequences{$a}} keys %unique_sequences){
 		$count++;
@@ -261,7 +263,7 @@ print "Total sequences with $prefix primers in overlapped reads: $total_primer_r
 print "Total cluster: $count_clusters\n";
 print "Total singletons: $count_singles\n";
 
-open (STAT, ">", "$work_dir/$sample.$prefix.sort.stats.tsv");
+open (STAT, ">", "$work_dir/03-sort/$sample.$prefix.sort.stats.tsv");
 print STAT "$sample\t$prefix\t$total_primer_reads\t$count_clusters\t$count_singles\n";
 close (STAT);
 
