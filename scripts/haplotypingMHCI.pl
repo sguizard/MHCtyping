@@ -4,20 +4,20 @@ use Cwd;
 use Getopt::Long;
 
 my $haplotypes_file = "";
-my $seleced_file = "";
-my $discarded_file = "";
-my $summary_file = "";
-my $fasta = "";
-my $prefix = "";
+my $seleced_file    = "";
+my $discarded_file  = "";
+my $summary_file    = "";
+my $fasta           = "";
+my $prefix          = "";
 
 
 GetOptions(
-    'haplotypes=s'    => \$haplotypes_file,
-    'filtered=s'     => \$seleced_file,
-    'discarded=s' => \$discarded_file,
-    'summary=s'     => \$summary_file,
-    'database=s'     => \$fasta,
-    'prefix=s' => \$prefix
+    'haplotypes=s' => \$haplotypes_file,
+    'filtered=s'   => \$seleced_file,
+    'discarded=s'  => \$discarded_file,
+    'summary=s'    => \$summary_file,
+    'database=s'   => \$fasta,
+    'prefix=s'     => \$prefix
 ) or print "Invalid options\n";
 
 
@@ -30,10 +30,10 @@ while(<FASTA>){
 	}
 }
 
-my %primer1_counts = ();
-my %primer2_counts = ();
-my %allele_info_for1_selected = ();
-my %allele_info_for3_selected = ();
+my %primer1_counts             = ();
+my %primer2_counts             = ();
+my %allele_info_for1_selected  = ();
+my %allele_info_for3_selected  = ();
 my %allele_info_for1_discarded = ();
 my %allele_info_for3_discarded = ();
 
@@ -41,25 +41,25 @@ open(P1, "$summary_file") or die "Cannot open $summary_file\n";
 while(<P1>){
 	chomp $_;
 	@words = split("\t", $_);
-	$primer1_counts{$words[0]} = $words[4];
-	$primer2_counts{$words[0]} = $words[27];
-	$allele_info_for1_selected{$words[0]} = $words[12];
-	$allele_info_for3_selected{$words[0]} = $words[35];
+	$primer1_counts            {$words[0]} = $words[4];
+	$primer2_counts            {$words[0]} = $words[27];
+	$allele_info_for1_selected {$words[0]} = $words[12];
+	$allele_info_for3_selected {$words[0]} = $words[35];
 	$allele_info_for1_discarded{$words[0]} = $words[20];
 	$allele_info_for3_discarded{$words[0]} = $words[43];
 }
 
-open (OUT, ">$prefix.haplotyping_mhci.log");
-open (OUT_HP, ">$prefix.hp_mhci.txt") or die "Cannot write $prefix.hp\n";
-open (OUT_HP_GENES, ">$prefix.hp_alleles_mhci.txt") or die "Cannot write $prefix.hp.genes\n";
-open (OUT_NONHP, ">$prefix.nonhp_mhci.txt") or die "Cannot write $prefix.nonhp\n";
-open (OUT_CONT, ">$prefix.contamination_mhci.txt") or die "Cannot write $prefix.contamination\n";
+open (OUT         , ">$prefix.haplotyping_mhci.log"  );
+open (OUT_HP      , ">$prefix.hp_mhci.txt"           ) or die "Cannot write $prefix.hp\n";
+open (OUT_HP_GENES, ">$prefix.hp_alleles_mhci.txt"   ) or die "Cannot write $prefix.hp.genes\n";
+open (OUT_NONHP   , ">$prefix.nonhp_mhci.txt"        ) or die "Cannot write $prefix.nonhp\n";
+open (OUT_CONT    , ">$prefix.contamination_mhci.txt") or die "Cannot write $prefix.contamination\n";
 # open (OUT_BR22, ">$prefix.br22") or die "Cannot write $prefix.br22\n";
 
 print OUT_HP "Sample_ID\tAnimal_ID\tBreed\tLineage\tMHCI_comments_general\tMHCI_comments_specific\tTotal_Read_count_For_1\tTotal_read_count_For_3\tRead_count_For1_selected_for_haplotypes\tRead_count_For3_selected_for_haplotypes\tRead_count_For1_discarded_mapped\tRead_count_For3_discarded_mapped\tRead_count_For1_in_haplotypes\tRead_count_For3_in_haplotypes\tFor1_total_haplotypes\tFor3_total_haplotypes\tFor1_unassigned\tFor3_unassigned\tFor1_contamination_counts\tFor3_contamination_counts\tHaplotype1\tHaplotype1_total_For1_read_counts\tHaplotype1_total_For1_read_counts_%\tHaplotype1_total_For3_read_counts\tHaplotype1_total_For3_read_counts_%\n";
 			
 my %haplotypes = ();
-my $noOfGenes = 0;
+my $noOfGenes  = 0;
 if (-e $haplotypes_file){
 	open (HAP, "$haplotypes_file") or die "Cannot open $haplotypes_file\n";
 	while(<HAP>){
@@ -113,24 +113,24 @@ if (-e $seleced_file){
 		my @words = split("\t", $_);
 		my $sample = $words[0];
 		if ($allele_info_for1_selected{$sample} > 100 or $allele_info_for3_selected{$sample} > 100){
-			my $gene = "";
-			my %genes = ();
-			my %selected_genes = ();
-			my $flag = 1;
-			my %toWrite_hp = ();
-			my %text = ();
-			my %freq_genes = ();
-			my %freq_genes1 = ();
-			my %freq_genes2 = ();
-			my %freq_genes1_per = ();
-			my %freq_genes2_per = ();
-			my %per_freq1 = ();
-			my %per_freq2 = ();
-			my %discarded_genes = ();
-			my $comment_general = "";
+			my $gene             = "";
+			my %genes            = ();
+			my %selected_genes   = ();
+			my $flag             = 1;
+			my %toWrite_hp       = ();
+			my %text             = ();
+			my %freq_genes       = ();
+			my %freq_genes1      = ();
+			my %freq_genes2      = ();
+			my %freq_genes1_per  = ();
+			my %freq_genes2_per  = ();
+			my %per_freq1        = ();
+			my %per_freq2        = ();
+			my %discarded_genes  = ();
+			my $comment_general  = "";
 			my $comment_specific = "";
-			my %single_id = ();
-			my %double_id = ();
+			my %single_id        = ();
+			my %double_id        = ();
 
 			print OUT "\n**** $sample ****";
 			print OUT_CONT "$sample";
@@ -288,9 +288,9 @@ if (-e $seleced_file){
 
 			my $subtotal_haplotypes1 = 0;
 			my $subtotal_haplotypes2 = 0;
-			my %checked_genes = ();
-			my %hp_count1 = ();
-			my %hp_count2 = ();
+			my %checked_genes        = ();
+			my %hp_count1            = ();
+			my %hp_count2            = ();
 
 			#To calculate haplotype frequency
 			foreach my $hp (sort { $final_hp{$b} <=> $final_hp{a} } keys %final_hp){
@@ -336,14 +336,15 @@ if (-e $seleced_file){
 
 			my $subtotal_haplotypes1_final = 0;
 			my $subtotal_haplotypes2_final = 0;
-			%checked_genes = ();
-			my $contamination_flag = 0;
-			my $contamination_flag1 = 0;
-			my $contaminant = "";
-			my $contaminant_counts1 = 0;
-			my $contaminant_counts2 = 0;
-			my $pcr_contamination = 0;
-			my $pcr_contaminant = "";
+			%checked_genes                 = ();
+			my $contamination_flag         = 0;
+			my $contamination_flag1        = 0;
+			my $contaminant                = "";
+			my $contaminant_counts1        = 0;
+			my $contaminant_counts2        = 0;
+			my $pcr_contamination          = 0;
+			my $pcr_contaminant            = "";
+
 			foreach my $hp (sort { $final_hp{$a} <=> $final_hp{$b} } keys %final_hp){
 				$contamination_flag = 0;
 				my $per1 = 0;
@@ -485,11 +486,12 @@ if (-e $seleced_file){
 				}
 			}
 
-			$count1 = 0;
-			$count2 = 0;
+			$count1            = 0;
+			$count2            = 0;
 			my %selected_nonhp = ();
-			my $toWriteNonhp = "";
+			my $toWriteNonhp   = "";
 			my $flag_double_id = 0;
+
 			foreach my $gene (sort {$freq_genes{$b} <=> $freq_genes{$a}} keys %genes){
 				if (!exists $selected_genes{$gene} and !exists $discarded_genes{$gene} and !exists $selected_nonhp{$gene}){
 					if (exists $single_id{$gene}){
@@ -549,9 +551,10 @@ if (-e $seleced_file){
 				$per_freq2_nonhp = 0;
 			}
 			# print "$sample\n";
-			my $total_per1 = 0;
-			my $total_per2 = 0;
+			my $total_per1     = 0;
+			my $total_per2     = 0;
 			my $count_final_hp = 0;
+
 			foreach $hp (sort {$order_towrite{$b} <=> $order_towrite{$a}} keys %toWrite_hp){
 				$origin_hp = $hp;
 				$origin_hp =~ s/\#//;
