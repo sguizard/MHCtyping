@@ -4,28 +4,28 @@ use Cwd;
 use Time::Piece;
 use Getopt::Long;
 
-my $sample = "sample";
-my $work_dir = "results";
-my $prefix = "sample";
+my $sample       = "sample";
+my $work_dir     = "results";
+my $prefix       = "sample";
 my $ampliconSize = 0;
-my $cutoff = 0;
-my $fc = 0;
+my $cutoff       = 0;
+my $fc           = 0;
 
 GetOptions(
-    'sample=s'    => \$sample,
+    'sample=s'       => \$sample,
     'work_dir=s'     => \$work_dir,
-    'primers=s' => \$prefix,
-    'ampliconSize=i'     => \$ampliconSize,
-    'cutoff=s'	=> \$cutoff,
-    'fc=i'	=> \$fc
+    'primers=s'      => \$prefix,
+    'ampliconSize=i' => \$ampliconSize,
+    'cutoff=s'	     => \$cutoff,
+    'fc=i'	         => \$fc
 ) or print "Invalid options\n";
 
 my $localtime = localtime;
 print "Filtering: starting at $localtime\n\n";
 
-$blast_details = "$work_dir/$sample.$prefix.clusters.blast.details.tsv";
+$blast_details = "$work_dir/04-blast/$sample.$prefix.clusters.blast.details.tsv";
 if ( -e $blast_details ){
-	open (IN, "$work_dir/$sample.$prefix.clusters.blast.details.tsv");
+	open (IN, $blast_details);
 	while(<IN>){
 		chomp $_;
 		@words = split("\t", $_);
@@ -47,11 +47,11 @@ sub possible_chimaera {
 	my $sequence1 = $_[0];
 	my $sequence2 = $_[1];
 	my $candidate = $_[2];
-	$candidate = uc($candidate);
-	$sequence1 = uc($sequence1);
-	$sequence2 = uc($sequence2);
-	my %base1 = ();
-	my %base2 = ();
+	$candidate    = uc($candidate);
+	$sequence1    = uc($sequence1);
+	$sequence2    = uc($sequence2);
+	my %base1     = ();
+	my %base2     = ();
 
 	for (my $i = 0; $i < length($sequence1); $i++) {
 		$base1{$i} = substr($sequence1, $i, 1 );
@@ -87,40 +87,44 @@ sub possible_chimaera {
 }
 
 
-my $count_1bpvariants_reads = 0;
-my $count_chimera_reads = 0;
-my $count_good_reads = 0;
-my $count_gap_reads = 0;
-my $count_lendiff_reads = 0;
-my $count_mapped_good_reads = 0;
-my $count_unmapped_good_reads = 0;
-my $count_mapped_chimera_reads = 0;
-my $count_unmapped_chimera_reads = 0;
-my $count_mapped_1bpvariant_reads = 0;
+my $count_1bpvariants_reads         = 0;
+my $count_chimera_reads             = 0;
+my $count_good_reads                = 0;
+my $count_gap_reads                 = 0;
+my $count_lendiff_reads             = 0;
+my $count_mapped_good_reads         = 0;
+my $count_unmapped_good_reads       = 0;
+my $count_mapped_chimera_reads      = 0;
+my $count_unmapped_chimera_reads    = 0;
+my $count_mapped_1bpvariant_reads   = 0;
 my $count_unmapped_1bpvariant_reads = 0;
 
 
-my $count_1bpvariants = 0;
-my $count_chimera = 0;
-my $count_good = 0;
-my $count_gap = 0;
-my $count_lendiff = 0;
-my $count_mapped_good = 0;
-my $count_unmapped_good = 0;
-my $count_mapped_chimera = 0;
-my $count_unmapped_chimera = 0;
-my $count_mapped_1bpvariant = 0;
+my $count_1bpvariants         = 0;
+my $count_chimera             = 0;
+my $count_good                = 0;
+my $count_gap                 = 0;
+my $count_lendiff             = 0;
+my $count_mapped_good         = 0;
+my $count_unmapped_good       = 0;
+my $count_mapped_chimera      = 0;
+my $count_unmapped_chimera    = 0;
+my $count_mapped_1bpvariant   = 0;
 my $count_unmapped_1bpvariant = 0;
 
-open (INFO, ">$work_dir/$sample.$prefix.clusters.details.tsv") or die "Cannot write $work_dir/$sample.$prefix.clusters.details.tsv\n";
-open (FASTA, ">$work_dir/$sample.$prefix.selected.fasta");
-my $clusters_file = "$work_dir/$sample.$prefix.clusters.fasta";
+
+mkdir "$work_dir/06-filtering" unless -d "$work_dir/06-filtering";
+print "DEBUG: $work_dir/06-filtering\n";
+open (INFO, ">$work_dir/06-filtering/$sample.$prefix.clusters.details.tsv") or die "Cannot write $work_dir/06-filtering/$sample.$prefix.clusters.details.tsv\n";
+open (FASTA, ">$work_dir/06-filtering/$sample.$prefix.selected.fasta");
+
+my $clusters_file = "$work_dir/03-sort/$sample.$prefix.clusters.fasta";
 if ( -e $clusters_file ){
-	my %variants = ();
-	my %variants_ids = ();
+	my %variants       = ();
+	my %variants_ids   = ();
 	my %variants_order = ();
-	my %variants_per = ();
-	my %lengths = ();
+	my %variants_per   = ();
+	my %lengths        = ();
 
 	open (IN, "$clusters_file");
 	LOOP1: while(<IN>){
@@ -129,25 +133,25 @@ if ( -e $clusters_file ){
 			$id = $1;
 		}
 		else{
-			@words = split(/:/, $id);
-			$variants{$_} = $words[1];
-			$variants_ids{$_} = $id;
+			@words              = split(/:/, $id);
+			$variants{$_}       = $words[1];
+			$variants_ids{$_}   = $id;
 			$variants_order{$_} = $words[0];
-			$variants_per{$_} = $words[2];
-			$lengths{$_} = length($_);
+			$variants_per{$_}   = $words[2];
+			$lengths{$_}        = length($_);
 		}
 	}
 	$total = keys %variants;
 	print "$total clusters to check....\n";
 	foreach my $seq (sort {$variants_order{$a} <=> $variants_order{$b}} keys %variants){
 	
-		my $flag_pcr_error = 0;
+		my $flag_pcr_error  = 0;
 		my $flag_chimera;
 		my $mismatch_counts = 0;
-		my $mismatch = "";
-		my $mismatch_with = "";
-		my $fc = 0;
-		my $flag_gap = 0;
+		my $mismatch        = "";
+		my $mismatch_with   = "";
+		my $fc              = 0;
+		my $flag_gap        = 0;
 
 		my $id = $variants_ids{$seq};
 		print "$id: ";
@@ -293,7 +297,8 @@ else{
 	print "Cannot read $clusters_file\n";
 }
 
-open (STATS, ">$work_dir/$sample.$prefix.clusters.stats.tsv") or die "Cannot write $work_dir/$sample.$prefix.clusters.stats.tsv\n";
+
+open (STATS, ">$work_dir/06-filtering/$sample.$prefix.clusters.stats.tsv") or die "Cannot write $work_dir/06-filtering/$sample.$prefix.clusters.stats.tsv\n";
 print STATS "$sample\t$count_lendiff_reads\t$count_lendiff";
 print STATS "\t$count_gap_reads\t$count_gap";
 print STATS "\t$count_chimera_reads\t$count_chimera\t$count_mapped_chimera_reads\t$count_mapped_chimera\t$count_unmapped_chimera_reads\t$count_unmapped_chimera";
