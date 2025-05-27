@@ -22,11 +22,10 @@ my %new         = ();
 my %new_samples = ();
 my %new_freq1   = ();
 my %new_freq2   = ();
-
-my %redundant1 = ();
-my %redundant2 = ();
-my %for1       = ();
-my %for3       = ();
+my %redundant1  = ();
+my %redundant2  = ();
+my %for1        = ();
+my %for3        = ();
 
 open(IN, "$in_fasta");
 while(<IN>) {
@@ -104,7 +103,7 @@ while(<SAMPLESHEET>){
 	chomp $_;
 	my @words             = split("\t", $_);
 	my $sample            = $words[0];
-	$sickle_log           = "results/$sample/$sample.trimming_by_sickle.log";
+	$sickle_log           = "results/$sample/01-sickle-fastqc/$sample.trimming_by_sickle.log";
 	my $total_reads       = 0;
 	my $trimmed_paired    = 0;
 	my $overlapped_paired = 0;
@@ -132,7 +131,7 @@ while(<SAMPLESHEET>){
 	}
 
 	#To get overlapped counts
-	$flash_log = "results/$sample/$sample.overlap_by_flash.log";
+	$flash_log = "results/$sample/02-flash/$sample.overlap_by_flash.log";
 	if (-e $flash_log){
 		open (IN, "$flash_log");
 		LOOP2: while (<IN>){
@@ -176,7 +175,7 @@ while(<SAMPLESHEET>){
 		my $splicevariant       = 0;
 		my $new                 = 0;
 		
-		$sort_primer = "results/$sample/$sample.$primer.sort.stats.tsv";
+		$sort_primer = "results/$sample/03-sort/$sample.$primer.sort.stats.tsv";
 		if (-e $sort_primer){
 			open (IN, "$sort_primer");
 			while (<IN>){
@@ -192,7 +191,7 @@ while(<SAMPLESHEET>){
 			print "Cannot find $sort_primer\n";
 		}
 
-		$filter_log = "results/$sample/$sample.$primer.clusters.stats.tsv";
+		$filter_log = "results/$sample/06-filtering/$sample.$primer.clusters.stats.tsv";
 		if (-e $filter_log){
 			open (IN, "$filter_log");
 			while (<IN>){
@@ -217,7 +216,7 @@ while(<SAMPLESHEET>){
 			print "Cannot find $filter_log\n";
 		}
 
-		$mapping_log = "results/$sample/$sample.$primer.clusters.blast.stats.tsv";
+		$mapping_log = "results/$sample/05-analyze_blast/$sample.$primer.clusters.blast.stats.tsv";
 		if (-e $mapping_log){
 			open (IN, "$mapping_log");
 			while (<IN>){
