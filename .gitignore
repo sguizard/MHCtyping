@@ -16,6 +16,5 @@
 *.ntf
 *.nto
 results/*
-fastq/*.sh
 fasta/new*
 .snakemake/
