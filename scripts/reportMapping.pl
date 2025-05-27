@@ -4,41 +4,41 @@ use Cwd;
 use IPC::Cmd qw[can_run run];
 use Getopt::Long;
 
-my $sample = "sample";
-my $work_dir = "results";
-my $prefix = "sample";
-my $blast_file = "";
+my $sample        = "sample";
+my $work_dir      = "results";
+my $prefix        = "sample";
+my $blast_file    = "";
 my $filtered_file = "";
 my $cluster_fasta = "";
-my $ampliconSize = 0;
+my $ampliconSize  = 0;
 
 GetOptions(
-    'sample=s'    => \$sample,
-    'work_dir=s'     => \$work_dir,
-    'primers=s' => \$prefix,
-    'ampliconSize=i'     => \$ampliconSize,
-    'blast_file=s'     => \$blast_file,
-    'cluster_fasta=s'     => \$cluster_fasta
+    'sample=s'        => \$sample,
+    'work_dir=s'      => \$work_dir,
+    'primers=s'       => \$prefix,
+    'ampliconSize=i'  => \$ampliconSize,
+    'blast_file=s'    => \$blast_file,
+    'cluster_fasta=s' => \$cluster_fasta
 ) or print "Invalid options\n";
 
 my $localtime = localtime;
 print "Checking blast: starting at $localtime\n\n";
 
-my %counts = ();
-my %per = ();
+my %counts   = ();
+my %per      = ();
 
-my $id = "";
-my %refs = ();
+my $id       = "";
+my %refs     = ();
 my %identity = ();
-# my %error = ();
-# my %gap = ();
-my %match = ();
-my %q_len = ();
-my %q_start = ();
-my %q_end = ();
-my %r_len = ();
-my %r_start = ();
-my %r_end = ();
+# my %error  = ();
+# my %gap    = ();
+my %match    = ();
+my %q_len    = ();
+my %q_start  = ();
+my %q_end    = ();
+my %r_len    = ();
+my %r_start  = ();
+my %r_end    = ();
 
 # 0 1:4652:24.28102
 # 1 BoLA-DQA*021:02
@@ -62,19 +62,19 @@ if (-e $blast_file) {
 		chomp $_;
 		my @words = split("\t", $_);
 		if ($words[0] ne $id and $words[2] =~ /100.00/ and ($words[3] eq $words[4] or $words[3] eq $words[7])){
-			$id = $words[0];
+			$id            = $words[0];
 			# print "$id\t$words[2]\t$words[1]\t$words[3]\t$words[4]\n";
-			$refs{$id} = $words[1];
+			$refs{$id}     = $words[1];
 			$identity{$id} = $words[2];
-		    # $error{$id} = $words[10];
-		    # $gap{$id} = $words[11];
-		    $match{$id} = $words[3];
-		    $q_len{$id} = $words[4];
-		    $q_start{$id} = $words[5];
-		    $q_end{$id} = $words[6];
-		    $r_len{$id} = $words[7];
-		    $r_start{$id} = $words[8];
-		    $r_end{$id} = $words[9];
+		    # $error{$id}  = $words[10];
+		    # $gap{$id}    = $words[11];
+		    $match{$id}    = $words[3];
+		    $q_len{$id}    = $words[4];
+		    $q_start{$id}  = $words[5];
+		    $q_end{$id}    = $words[6];
+		    $r_len{$id}    = $words[7];
+		    $r_start{$id}  = $words[8];
+		    $r_end{$id}    = $words[9];
 		}
 		elsif ($identity{$id} eq $words[2] and ($words[3] eq $words[4] or $words[3] eq $words[7])){
 			$refs{$id} = $refs{$id}.",".$words[1];
@@ -90,11 +90,12 @@ print "\n\n";
 
 open (LOG, ">$work_dir/$sample.$prefix.clusters.blast.details.tsv") or print "Cannot write $work_dir/$sample.$prefix.clusters.blast.details.tsv\n";
 
-my $mapped = 0;
-my $mapped_reads = 0;
-my $unmapped = 0;
+my $mapped         = 0;
+my $mapped_reads   = 0;
+my $unmapped       = 0;
 my $unmapped_reads = 0;
-my %references = ();
+my %references     = ();
+
 
 if (-e $blast_file) {
 	open(IN, "$cluster_fasta");
@@ -140,9 +141,11 @@ if (-e $blast_file) {
 	close(IN);
 }
 
-open (LOG, ">$work_dir/$sample.$prefix.clusters.blast.stats.tsv") or print "Cannot write $work_dir/$sample.$prefix.clusters.blast.details.tsv\n";
-print LOG "$sample\t$prefix\t$mapped_reads\t$unmapped_reads\t$mapped\t$unmapped\n";
-close(LOG);
+$work_dir =~ s/04-blast/05-analyze_blast/;
+mkdir $work_dir unless -d $work_dir;
+open (OUT, ">$work_dir/$sample.$prefix.clusters.blast.stats.tsv") or print "Cannot write $work_dir/$sample.$prefix.clusters.blast.stats.tsv\n";
+print OUT "$sample\t$prefix\t$mapped_reads\t$unmapped_reads\t$mapped\t$unmapped\n";
+close(OUT);
 
 print "Mapped: $mapped_reads ($mapped)\n";
 print "Unmapped mapped: $unmapped_reads ($unmapped)\n";
