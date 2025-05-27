@@ -29,7 +29,7 @@ while(<SAMPLESHEET>){
 	my $sample = $words[0];
 	chomp $sample;
 
-	my $file = "results/$sample/$sample.$primer.selected.fasta";
+	my $file = "results/$sample/06-filtering/$sample.$primer.selected.fasta";
 	
 	if (-s $file){
 		open(IN, "$file");
@@ -77,7 +77,7 @@ foreach my $seq (sort {$new{$b} <=> $new{$a}} keys %new){
 	$ave1{$seq} = sprintf("%.2f", ($total_freq1/scalar(@freq1)));
 }
 
-open(SUMMARY, ">summary.$primer.matrix.tsv");
+open(SUMMARY, ">$prefix.summary.$primer.matrix.tsv");
 print SUMMARY "Sample\t$primer:Total_reads\t$primer:Trimmed_reads\t$primer:Overlapped_reads\t$primer:Primer_found\t$primer:No_of_clusters\t$primer:singletons\t$primer:lenDiff_reads\t$primer:chimera_reads\t$primer:variants_reads\t$primer:low_reads\t$primer:gap_reads\t$primer:selected_reads\t$primer:lenDiff_clusters\t$primer:chimera_clusters\t$primer:variants_clusters\t$primer:low_clusters\t$primer:gap_clusters\t$primer:selected_clusters\t$primer:mapped_reads\t$primer:discarded_reads\t$primer:new_reads\t$primer:splicevariant_reads\t$primer:mapped_clusters\t$primer:discarded_clusters\t$primer:splicevariant_clusters\t$primer:new_clusters\t$primer:count_selected\t$primer:count_rescued\t$primer:count_discarded\n";
 #Get in all new sequences...
 
@@ -86,7 +86,7 @@ while(<SAMPLESHEET>){
 	my @words             = split("\t", $_);
 	my $sample            = $words[0];
 	chomp $sample;
-	$sickle_log           = "results/$sample/$sample.trimming_by_sickle.log";
+	$sickle_log           = "results/$sample/01-sickle-fastqc/$sample.trimming_by_sickle.log";
 	my $total_reads       = 0;
 	my $trimmed_paired    = 0;
 	my $overlapped_paired = 0;
@@ -116,7 +116,7 @@ while(<SAMPLESHEET>){
 		print "Cannot open $sickle_log\n";
 	}
 
-	$flash_log = "results/$sample/$sample.overlap_by_flash.log";
+	$flash_log = "results/$sample/02-flash/$sample.overlap_by_flash.log";
 	if (-e $sickle_log) {
 		open (IN, "$flash_log");
 		LOOP2: while (<IN>){
@@ -157,7 +157,7 @@ while(<SAMPLESHEET>){
 	my $splicevariant       = 0;
 	my $new                 = 0;
 
-	$sort_primer = "results/$sample/$sample.$primer.sort.stats.tsv";
+	$sort_primer = "results/$sample/03-sort/$sample.$primer.sort.stats.tsv";
 	if (-e $sort_primer) {
 		open (IN, "$sort_primer");
 		while (<IN>){
@@ -173,7 +173,7 @@ while(<SAMPLESHEET>){
 		print "Cannot find $sort_primer\n";
 	}
 
-	$filter_log = "results/$sample/$sample.$primer.clusters.stats.tsv";
+	$filter_log = "results/$sample/06-filtering/$sample.$primer.clusters.stats.tsv";
 	if (-e $filter_log){
 		open (IN, "$filter_log");
 		while (<IN>){
@@ -198,7 +198,7 @@ while(<SAMPLESHEET>){
 		print "Cannot find $filter_log\n";
 	}
 
-	$mapping_log = "results/$sample/$sample.$primer.clusters.blast.stats.tsv";
+	$mapping_log = "results/$sample/05-analyze_blast/$sample.$primer.clusters.blast.stats.tsv";
 	if (-e $mapping_log){
 		open (IN, "$mapping_log");
 		while (<IN>){
@@ -231,8 +231,8 @@ while(<SAMPLESHEET>){
 	my $count_discarded1 = 0;
 	my $count_rescued    = 0;
 
-	$file = "results/$sample/$sample.$primer.selected.fasta";
-	print "\n\nRunning $sample $primer...\n";
+	$file = "results/$sample/06-filtering/$sample.$primer.selected.fasta";
+	print "Running $sample $primer...\n\n";
 	if (-s $file){
 		open(IN, "$file");
 		$count = 0;
