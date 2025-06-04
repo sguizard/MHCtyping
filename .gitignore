@@ -7,14 +7,6 @@
 *.gz
 *.histogram*
 *.hist*
-*.ndb
-*.nhr
-*.nin
-*.njs
-*.not
-*.nsq
-*.ntf
-*.nto
 results/*
 fasta/new*
 .snakemake/
